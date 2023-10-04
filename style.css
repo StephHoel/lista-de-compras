@@ -1,0 +1,40 @@
+:root {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: rgb(84, 84, 84);
+  height: 100vh;
+  padding: 0 .2rem;
+  color: aliceblue;
+
+  display: grid;
+  grid-template-rows: max-content 1fr max-content;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  margin-bottom: .3rem;
+}
+
+header div {
+  font-size: 1.5rem;
+}
+
+main {
+  border: 1px solid green;
+  margin-bottom: .3rem;
+}
+
+footer {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  color: silver;
+  font-size: .5rem;
+}
