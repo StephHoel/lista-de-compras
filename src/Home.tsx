@@ -7,6 +7,7 @@ import {
   ArrowCircleLeft,
   PencilSimple,
   PlusCircle,
+  Trash,
 } from '@phosphor-icons/react'
 
 interface ListProps {
@@ -28,9 +29,12 @@ export default function Home() {
 
   const collec = 'buy-list'
 
-  async function GetDocs(collec: string) {
+  let total = 0
+
+  async function GetDocs() {
     await getDocs(collection(db, collec)).then((querySnapshot) => {
       const lista: ListProps[] = []
+      total = 0
 
       querySnapshot.forEach((doc) => {
         if (
@@ -38,7 +42,7 @@ export default function Home() {
           doc.data().price === '' &&
           doc.data().qtd === ''
         ) {
-          DeleteDoc(collec, doc.id)
+          DeleteDoc(doc.id)
         } else {
           lista.push({
             id: doc.id,
@@ -51,28 +55,28 @@ export default function Home() {
 
       lista.sort((a, b) => a.item.localeCompare(b.item))
 
-      setList([])
+      lista.forEach((l) => {
+        total += l.price * l.qtd
+      })
+
       setList(lista)
     })
   }
 
-  async function DeleteDoc(collec: string, docId: string) {
+  async function DeleteDoc(docId: string) {
     await deleteDoc(doc(db, collec, docId))
   }
 
   useEffect(() => {
-    async function fetchData() {
-      await GetDocs('buy-list')
-    }
-    fetchData()
+    GetDocs()
   }, [false])
 
-  async function AddItem(e: FormEvent) {
+  function AddItem(e: FormEvent) {
     e.preventDefault()
 
     if (item !== '' || qtd !== 0 || price !== 0) {
       try {
-        await addDoc(collection(db, collec), {
+        addDoc(collection(db, collec), {
           item,
           qtd,
           price,
@@ -83,11 +87,11 @@ export default function Home() {
         setPrice(0)
 
         if (id !== '') {
-          DeleteDoc(collec, id)
+          DeleteDoc(id)
           setId('')
         }
 
-        await GetDocs(collec)
+        GetDocs()
 
         setPage('Home')
       } catch (err) {
@@ -100,18 +104,17 @@ export default function Home() {
 
   // Pages
   function PageHome() {
-    GetDocs(collec)
-
     return (
       <main className="mb-1">
-        {list.length === 0 ? (
+        {list.length === 1 ? (
           <div className="text-center text-4xl">
             Adicione itens à sua lista de compras
           </div>
         ) : (
           <div id="list" className="text-2xl">
-            <div className="w-max mr-2 pr-2 border-r border-black">
-              <PencilSimple className="text-4xl text-[#545454]" />
+            <div className="w-max mr-2 pr-2 border-r border-black flex">
+              <Trash className="text-4xl cursor-pointer hover:text-slate-800" />
+              <PencilSimple className="text-4xl cursor-pointer hover:text-slate-800" />
             </div>
             <div className="mr-2 pr-2 border-r border-black">Item</div>
             <div className="mr-2 pr-2 border-r border-black text-center">
@@ -126,6 +129,12 @@ export default function Home() {
               return (
                 <>
                   <div className="w-max mr-2 pr-2 border-r border-black">
+                    <Trash
+                      className="text-4xl cursor-pointer hover:text-slate-800"
+                      onClick={() => {
+                        DeleteDoc(line.id)
+                      }}
+                    />
                     <PencilSimple
                       className="text-4xl cursor-pointer hover:text-slate-800"
                       onClick={() => {
@@ -214,12 +223,18 @@ export default function Home() {
   return (
     <div className="p-4" id="body">
       <header className="flex justify-between items-center pl-4 pb-2 mb-1 border-b border-gray-50">
-        <div className="text-5xl">Lista de Compras</div>
+        <div className="text-4xl">
+          Lista de Compras {total !== 0 ? ' | R$ ' + total.toFixed(2) : null}
+        </div>
         <nav className="flex gap-4 justify-center text-center">
           {page === 'Home' ? (
             <PlusCircle
               className="text-6xl cursor-pointer hover:text-slate-800"
               onClick={() => {
+                setId('')
+                setItem('')
+                setQtd(0)
+                setPrice(0)
                 setPage('Add')
               }}
             />
