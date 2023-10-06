@@ -19,6 +19,7 @@ interface ListProps {
 
 export default function Home() {
   const [page, setPage] = useState('Home')
+  const [total, setTotal] = useState(0)
 
   const [id, setId] = useState('')
   const [item, setItem] = useState('')
@@ -29,12 +30,10 @@ export default function Home() {
 
   const collec = 'buy-list'
 
-  let total = 0
-
   async function GetDocs() {
     await getDocs(collection(db, collec)).then((querySnapshot) => {
       const lista: ListProps[] = []
-      total = 0
+      setTotal(0)
 
       querySnapshot.forEach((doc) => {
         if (
@@ -55,10 +54,13 @@ export default function Home() {
 
       lista.sort((a, b) => a.item.localeCompare(b.item))
 
+      let conta = 0
+
       lista.forEach((l) => {
-        total += l.price * l.qtd
+        conta += l.price * l.qtd
       })
 
+      setTotal(conta)
       setList(lista)
     })
   }
@@ -113,8 +115,8 @@ export default function Home() {
         ) : (
           <div id="list" className="text-2xl">
             <div className="w-max mr-2 pr-2 border-r border-black flex">
-              <Trash className="text-4xl cursor-pointer hover:text-slate-800" />
-              <PencilSimple className="text-4xl cursor-pointer hover:text-slate-800" />
+              <Trash className="text-4xl text-gray-500" />
+              <PencilSimple className="text-4xl text-gray-500" />
             </div>
             <div className="mr-2 pr-2 border-r border-black">Item</div>
             <div className="mr-2 pr-2 border-r border-black text-center">
@@ -128,7 +130,7 @@ export default function Home() {
             {list.map((line) => {
               return (
                 <>
-                  <div className="w-max mr-2 pr-2 border-r border-black">
+                  <div className="w-max mr-2 pr-2 border-r border-black flex">
                     <Trash
                       className="text-4xl cursor-pointer hover:text-slate-800"
                       onClick={() => {
@@ -224,7 +226,10 @@ export default function Home() {
     <div className="p-4" id="body">
       <header className="flex justify-between items-center pl-4 pb-2 mb-1 border-b border-gray-50">
         <div className="text-4xl">
-          Lista de Compras {total !== 0 ? ' | R$ ' + total.toFixed(2) : null}
+          Lista de Compras{' '}
+          {total !== 0
+            ? ' | R$ ' + total.toFixed(2).toString().replace('.', ',')
+            : null}
         </div>
         <nav className="flex gap-4 justify-center text-center">
           {page === 'Home' ? (
