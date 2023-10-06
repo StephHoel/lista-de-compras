@@ -223,7 +223,7 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4" id="body">
+    <div className="p-4 lg:w-1/2 lg:m-auto" id="body">
       <header className="flex justify-between items-center pl-4 pb-2 mb-1 border-b border-gray-50">
         <div className="text-4xl">
           Lista de Compras{' '}
