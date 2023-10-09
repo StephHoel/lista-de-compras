@@ -23,10 +23,14 @@ export default function Home() {
 
   const [id, setId] = useState('')
   const [item, setItem] = useState('')
-  const [qtd, setQtd] = useState(0)
-  const [price, setPrice] = useState(0)
+  const [qtd, setQtd] = useState('')
+  const [price, setPrice] = useState('')
 
   const [list, setList] = useState<ListProps[]>([])
+
+  const [isValidText, setIsValidText] = useState(true)
+  const [isValidQtd, setIsValidQtd] = useState(true)
+  const [isValidPrice, setIsValidPrice] = useState(true)
 
   const collec = 'buy-list'
 
@@ -58,6 +62,8 @@ export default function Home() {
 
       lista.forEach((l) => {
         conta += l.price * l.qtd
+
+        // console.log(l.price)
       })
 
       setTotal(conta)
@@ -65,8 +71,40 @@ export default function Home() {
     })
   }
 
-  async function DeleteDoc(docId: string) {
-    await deleteDoc(doc(db, collec, docId))
+  function DeleteDoc(docId: string) {
+    deleteDoc(doc(db, collec, docId))
+
+    GetDocs()
+  }
+
+  function handleInputItemChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newValue = event.target.value
+    const regex = /^[A-Za-z0-9.,]$/
+
+    setItem(newValue)
+    setIsValidText(regex.test(newValue))
+  }
+
+  function handleInputQtdChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newValue = event.target.value.replace(',', '.')
+
+    if (!Number.parseFloat(newValue) && newValue !== '') {
+      // console.log('Não é número')
+      setIsValidQtd(false)
+    } else {
+      setQtd(newValue)
+    }
+  }
+
+  function handleInputPriceChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newValue = event.target.value.replace(',', '.')
+
+    if (!Number.parseFloat(newValue) && newValue !== '') {
+      // console.log('Não é número')
+      setIsValidPrice(false)
+    } else {
+      setPrice(newValue)
+    }
   }
 
   useEffect(() => {
@@ -76,17 +114,23 @@ export default function Home() {
   function AddItem(e: FormEvent) {
     e.preventDefault()
 
-    if (item !== '' || qtd !== 0 || price !== 0) {
+    if (
+      item !== '' &&
+      qtd !== '0' &&
+      price !== '0' &&
+      qtd !== '' &&
+      price !== ''
+    ) {
       try {
         addDoc(collection(db, collec), {
           item,
-          qtd,
-          price,
+          qtd: Number.parseFloat(qtd),
+          price: Number.parseFloat(price).toFixed(2),
         })
 
         setItem('')
-        setQtd(0)
-        setPrice(0)
+        setQtd('')
+        setPrice('')
 
         if (id !== '') {
           DeleteDoc(id)
@@ -108,7 +152,7 @@ export default function Home() {
   function PageHome() {
     return (
       <main className="mb-1">
-        {list.length === 1 ? (
+        {list.length === 0 ? (
           <div className="text-center text-4xl">
             Adicione itens à sua lista de compras
           </div>
@@ -118,14 +162,16 @@ export default function Home() {
               <Trash className="text-4xl text-gray-500" />
               <PencilSimple className="text-4xl text-gray-500" />
             </div>
-            <div className="mr-2 pr-2 border-r border-black">Item</div>
-            <div className="mr-2 pr-2 border-r border-black text-center">
+            <div className="mr-2 pr-2 border-r border-black font-bold">
+              Item
+            </div>
+            <div className="mr-2 pr-2 border-r border-black text-center font-bold">
               Qtd
             </div>
-            <div className="mr-2 pr-2 border-r border-black text-center">
+            <div className="mr-2 pr-2 border-r border-black text-center font-bold">
               $ Uni
             </div>
-            <div className=" text-center">$ Total</div>
+            <div className="text-center font-bold">$ Total</div>
 
             {list.map((line) => {
               return (
@@ -142,8 +188,8 @@ export default function Home() {
                       onClick={() => {
                         setId(line.id)
                         setItem(line.item)
-                        setQtd(line.qtd)
-                        setPrice(line.price)
+                        setQtd(line.qtd.toString())
+                        setPrice(line.price.toString())
                         setPage('Add')
                       }}
                     />
@@ -152,7 +198,7 @@ export default function Home() {
                     {line.item}
                   </div>
                   <div className="mr-2 pr-2 border-r border-black text-center">
-                    {line.qtd}
+                    {line.qtd.toString().replace('.', ',')}
                   </div>
                   <div className="mr-2 pr-2 border-r border-black flex gap-2">
                     <div>R$</div>
@@ -186,30 +232,47 @@ export default function Home() {
           <input
             type="text"
             placeholder="Item"
-            className="rounded text-black p-1"
-            onChange={(value) => setItem(value.currentTarget.value)}
+            className={`${
+              isValidText ? '' : 'border-red-600 border-2'
+            } rounded text-black p-1 outline-none`}
             value={item}
+            onChange={handleInputItemChange}
           />
+          {!isValidText && (
+            <p style={{ color: 'red' }}>Apenas letras são permitidas.</p>
+          )}
 
           <label className="p-1">Quantidade</label>
           <input
-            type="number"
+            type="text"
             placeholder="1"
-            min={0}
-            className="rounded text-black p-1"
-            onChange={(value) => setQtd(value.currentTarget.valueAsNumber)}
+            className={`${
+              isValidQtd ? '' : 'border-red-600 border-2'
+            } rounded text-black p-1 outline-none`}
+            onChange={handleInputQtdChange}
             value={qtd}
           />
+          {!isValidQtd && (
+            <p style={{ color: 'red' }}>
+              Apenas dígitos de 0 a 9 são permitidos.
+            </p>
+          )}
 
           <label className="p-1">Preço</label>
           <input
-            type="number"
+            type="text"
             placeholder="2.99"
-            min={0}
-            className="rounded text-black p-1"
-            onChange={(value) => setPrice(value.currentTarget.valueAsNumber)}
+            className={`${
+              isValidPrice ? '' : 'border-red-600 border-2'
+            } rounded text-black p-1 outline-none`}
+            onChange={handleInputPriceChange}
             value={price}
           />
+          {!isValidPrice && (
+            <p style={{ color: 'red' }}>
+              Apenas dígitos de 0 a 9 são permitidos.
+            </p>
+          )}
 
           <button
             onClick={AddItem}
@@ -238,8 +301,8 @@ export default function Home() {
               onClick={() => {
                 setId('')
                 setItem('')
-                setQtd(0)
-                setPrice(0)
+                setQtd('')
+                setPrice('')
                 setPage('Add')
               }}
             />
