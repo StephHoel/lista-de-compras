@@ -1,5 +1,6 @@
 import MD5 from 'crypto-js/md5'
 import { useEffect, useState } from 'react'
+import DivError from '../components/DivError'
 import { api } from '../lib/axios'
 
 export default function Home() {
@@ -8,6 +9,8 @@ export default function Home() {
 
   const [isValidUser, setIsValidUser] = useState(true)
   const [isValidPass, setIsValidPass] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     document.title = 'Home | Lista de Compras'
@@ -26,7 +29,7 @@ export default function Home() {
         <input
           className={`${
             !isValidUser ? 'border-red-600 border-2' : ''
-          } rounded outline-none text-black p-1 mb-2`}
+          } rounded outline-none text-black p-1`}
           type="text"
           autoComplete="username"
           placeholder="Usuário"
@@ -41,9 +44,7 @@ export default function Home() {
           value={username}
         />
         {!isValidUser && (
-          <div className="text-red-600 select-none">
-            O usuário deve ter pelo menos 4 letras
-          </div>
+          <DivError>O usuário deve ter pelo menos 4 letras</DivError>
         )}
 
         <label>Senha</label>
@@ -64,31 +65,39 @@ export default function Home() {
           }}
           value={password}
         />
-        {!isValidPass && (
-          <div className="text-red-500 select-none">A senha é obrigatória</div>
-        )}
+        {!isValidPass && <DivError>A senha é obrigatória</DivError>}
 
         <button
           className={`rounded p-1 my-8 bg-slate-800 hover:bg-slate-500 ${
             !isValidUser || !isValidPass
               ? 'cursor-not-allowed bg-slate-500'
               : ''
-          }`}
+          }
+          ${isLoading ? 'cursor-not-allowed bg-slate-500' : ''}
+          `}
           onClick={async (e) => {
             e.preventDefault()
+            setIsLoading(true)
 
-            const user = await api.post('/user', {
-              username,
-              password: MD5(password).toString(),
-            })
+            if (username !== '' && password !== '') {
+              const user = await api.post('/user', {
+                username,
+                password: MD5(password).toString(),
+              })
 
-            if (user.status === 201) {
-              sessionStorage.setItem('idUser', user.data.idUser)
-              window.location.reload()
+              if (user.status === 201) {
+                sessionStorage.setItem('idUser', user.data.idUser)
+                setIsLoading(false)
+                window.location.reload()
+              }
+            } else {
+              setIsValidUser(false)
+              setIsValidPass(false)
+              setIsLoading(false)
             }
           }}
         >
-          Registrar
+          {isLoading ? 'Carregando...' : 'Registrar'}
         </button>
       </form>
     </main>
