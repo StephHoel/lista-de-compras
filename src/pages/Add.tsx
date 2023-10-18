@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
+
+import DivError from '../components/DivError'
 import { ValidateNumber, ValidateText } from '../lib/validate'
 
 export default function Add() {
   const [token] = useState(sessionStorage.getItem('idUser'))
-  const navigate = useNavigate()
 
   const [isValidItem, setIsValidItem] = useState(true)
   const [isValidQtd, setIsValidQtd] = useState(true)
   const [isValidPrice, setIsValidPrice] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [item, setItem] = useState('')
   const [qtd, setQtd] = useState('')
@@ -28,7 +30,7 @@ export default function Add() {
             type="text"
             placeholder="Item"
             className={`${
-              isValidItem ? '' : 'border-red-600 border-2'
+              isValidItem ? '' : 'border-red-500 border-2'
             } rounded text-black p-1 outline-none`}
             value={item}
             onChange={(e) => {
@@ -38,9 +40,9 @@ export default function Add() {
             }}
           />
           {!isValidItem && (
-            <p style={{ color: 'red' }}>
+            <DivError>
               Um nome é necessário para o item ser adicionado.
-            </p>
+            </DivError>
           )}
         </div>
 
@@ -50,7 +52,7 @@ export default function Add() {
             type="text"
             placeholder="1"
             className={`${
-              isValidQtd ? '' : 'border-red-600 border-2'
+              isValidQtd ? '' : 'border-red-500 border-2'
             } rounded text-black p-1 outline-none`}
             value={qtd}
             onChange={(e) => {
@@ -60,9 +62,7 @@ export default function Add() {
             }}
           />
           {!isValidQtd && (
-            <p style={{ color: 'red' }}>
-              Apenas dígitos de 0 a 9 são permitidos.
-            </p>
+            <DivError>Apenas dígitos de 0 a 9 são permitidos.</DivError>
           )}
         </div>
 
@@ -72,7 +72,7 @@ export default function Add() {
             type="text"
             placeholder="2.99"
             className={`${
-              isValidPrice ? '' : 'border-red-600 border-2'
+              isValidPrice ? '' : 'border-red-500 border-2'
             } rounded text-black p-1 outline-none`}
             value={price}
             onChange={(e) => {
@@ -82,21 +82,23 @@ export default function Add() {
             }}
           />
           {!isValidPrice && (
-            <p style={{ color: 'red' }}>
-              Apenas dígitos de 0 a 9 são permitidos.
-            </p>
+            <DivError>Apenas dígitos de 0 a 9 são permitidos.</DivError>
           )}
         </div>
 
         <button
           onClick={async (e) => {
             e.preventDefault()
+            setIsLoading(true)
 
             const preco = Number.parseFloat(price.replace(',', '.'))
             const qtds = Number.parseFloat(qtd.replace(',', '.'))
 
-            if (!item && !preco && !qtds) {
-              alert('Item, quantidade e preço necessários!')
+            if (!item || !preco || !qtds) {
+              setIsValidItem(item !== '')
+              setIsValidPrice(price !== '')
+              setIsValidQtd(qtd !== '')
+              setIsLoading(false)
             } else {
               const response = await api.post(
                 '/items',
@@ -117,13 +119,20 @@ export default function Add() {
                 setQtd('')
                 setPrice('')
 
-                navigate('/')
+                window.location.reload()
               }
             }
           }}
-          className="my-8 p-2 rounded bg-slate-700 hover:bg-slate-800"
+          className={`my-8 p-2 rounded  
+          ${
+            !isValidItem || !isValidPrice || !isValidQtd
+              ? 'cursor-not-allowed bg-slate-500 hover:bg-slate-500'
+              : isLoading
+              ? 'cursor-not-allowed bg-slate-500'
+              : 'bg-slate-700 hover:bg-slate-800'
+          }`}
         >
-          Adicionar Item
+          {isLoading ? 'Carregando...' : 'Adicionar Item'}
         </button>
       </form>
     </main>

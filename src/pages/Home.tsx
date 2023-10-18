@@ -87,8 +87,8 @@ export default function Home() {
 
               if (user.status === 201) {
                 sessionStorage.setItem('idUser', user.data.idUser)
-                setIsLoading(false)
                 window.location.reload()
+                setIsLoading(false)
               }
             } else {
               setIsValidUser(false)
