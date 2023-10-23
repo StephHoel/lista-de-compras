@@ -119,7 +119,10 @@ export default function Add() {
                 setQtd('')
                 setPrice('')
 
-                window.location.reload()
+                const href = window.location.href
+                const location = href.split('add')[0]
+
+                window.location.href = location
               }
             }
           }}
