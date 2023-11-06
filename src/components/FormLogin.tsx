@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
+import { XCircle } from '@phosphor-icons/react'
 import MD5 from 'crypto-js/md5'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
-import { Buttons } from '../lib/props'
+import { Buttons, Pages } from '../lib/props'
 import DivError from './DivError'
-import { XCircle } from '@phosphor-icons/react'
 
 export default function FormLogin() {
   const [username, setUsername] = useState('')
@@ -80,12 +80,15 @@ export default function FormLogin() {
               // console.log('idUser', user.data)
               if (user.status === 201) {
                 sessionStorage.setItem('idUser', user.data.idUser)
-                navigate('/lista-de-compras/dash')
-              }
-              setIsLoading(false)
+                navigate(Pages.add)
+              } else
+                alert(
+                  'Não foi possível fazer o login, tente novamente mais tarde',
+                )
             } catch (err) {
               console.log(err)
             }
+            setIsLoading(false)
           } else {
             setIsValidUser(false)
             setIsValidPass(false)

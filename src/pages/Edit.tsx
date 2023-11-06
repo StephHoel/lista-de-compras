@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { ToDash, ToOut } from '../components/Navigations'
 import { api } from '../lib/axios'
-import { Pages } from '../lib/props'
+import { Buttons, Pages } from '../lib/props'
 import { ValidateNumber, ValidateText } from '../lib/validate'
+import { XCircle } from '@phosphor-icons/react'
 
 export default function Edit() {
   const [token] = useState(sessionStorage.getItem('idUser'))
@@ -21,6 +22,8 @@ export default function Edit() {
   const [isValidItem, setIsValidItem] = useState(true)
   const [isValidQtd, setIsValidQtd] = useState(true)
   const [isValidPrice, setIsValidPrice] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
 
@@ -143,18 +146,33 @@ export default function Edit() {
               </div>
 
               <button
+                className={`${Buttons.all} ${
+                  !isValidItem || !isValidPrice || !isValidQtd || isLoading
+                    ? Buttons.not
+                    : Buttons.yes
+                }`}
                 onClick={async (e) => {
                   e.preventDefault()
+                  setIsLoading(true)
 
-                  const preco = Number.parseFloat(price.replace(',', '.'))
-                  const qtds = Number.parseFloat(qtd.replace(',', '.'))
+                  const preco = Number.parseFloat(
+                    price.replace(',', '.').toString().trim(),
+                  )
+                  const qtds = Number.parseFloat(
+                    qtd.replace(',', '.').toString().trim(),
+                  )
 
-                  if (idUser === token) {
+                  if (idUser !== token && (!item || !preco || !qtds)) {
+                    alert(
+                      'Não foi possível editar o item, tente novamente mais tarde',
+                    )
+                    // navigate(Pages.home)
+                  } else {
                     const response = await api.put(
                       '/items',
                       {
                         idItem,
-                        item,
+                        item: item.toString().trim(),
                         qtd: qtds,
                         price: preco,
                       },
@@ -171,23 +189,25 @@ export default function Edit() {
                       setQtd('')
                       setPrice('')
 
-                      navigate('/')
+                      navigate(Pages.home)
                     } else {
                       alert(
                         'Não foi possível editar o item, tente novamente mais tarde',
                       )
-                      navigate('/')
+                      navigate(Pages.home)
                     }
-                  } else {
-                    alert(
-                      'Não foi possível editar o item, tente novamente mais tarde',
-                    )
-                    navigate('/')
                   }
+
+                  setIsLoading(false)
                 }}
-                className="my-8 p-2 rounded bg-slate-700 hover:bg-slate-800"
               >
-                Adicionar Item
+                {isLoading ? (
+                  <>
+                    <XCircle size={24} color="#fa0000" /> {'Carregando...'}
+                  </>
+                ) : (
+                  'Editar Item'
+                )}
               </button>
             </form>
           </>

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/axios'
 
+import { XCircle } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
 import DivError from '../components/DivError'
 import Header from '../components/Header'
 import { ToDash } from '../components/Navigations'
 import { Buttons, Pages } from '../lib/props'
 import { ValidateNumber, ValidateText } from '../lib/validate'
-import { XCircle } from '@phosphor-icons/react'
 
 export default function Add() {
   const [token] = useState(sessionStorage.getItem('idUser'))
@@ -144,11 +144,11 @@ export default function Add() {
                   setQtd('')
                   setPrice('')
 
-                  const href = window.location.href
-                  const location = href.split('add')[0]
-
-                  window.location.href = location
-                }
+                  navigate(Pages.dash)
+                } else
+                  alert(
+                    'Não foi possível adicionar o item, tente novamente mais tarde',
+                  )
               }
             }}
           >
