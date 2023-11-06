@@ -7,6 +7,7 @@ import Header from '../components/Header'
 import { ToDash } from '../components/Navigations'
 import { Buttons, Pages } from '../lib/props'
 import { ValidateNumber, ValidateText } from '../lib/validate'
+import { XCircle } from '@phosphor-icons/react'
 
 export default function Add() {
   const [token] = useState(sessionStorage.getItem('idUser'))
@@ -151,7 +152,13 @@ export default function Add() {
               }
             }}
           >
-            {isLoading ? 'Carregando...' : 'Adicionar Item'}
+            {isLoading ? (
+              <>
+                <XCircle size={24} color="#fa0000" /> {'Carregando...'}
+              </>
+            ) : (
+              'Adicionar Item'
+            )}
           </button>
         </form>
       </main>

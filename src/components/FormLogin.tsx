@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
 import { Buttons } from '../lib/props'
 import DivError from './DivError'
+import { XCircle } from '@phosphor-icons/react'
 
 export default function FormLogin() {
   const [username, setUsername] = useState('')
@@ -92,7 +93,13 @@ export default function FormLogin() {
           }
         }}
       >
-        {isLoading ? 'Carregando...' : 'Entrar / Registrar'}
+        {isLoading ? (
+          <>
+            <XCircle size={24} color="#fa0000" /> {'Carregando...'}
+          </>
+        ) : (
+          'Entrar / Registrar'
+        )}
       </button>
     </form>
   )

@@ -22,7 +22,7 @@ export enum Pages {
 }
 
 export enum Buttons {
-  'all' = 'rounded p-1 my-8 select-none',
+  'all' = 'rounded p-1 my-8 select-none flex items-center justify-center gap-2',
   'not' = 'bg-slate-600 pointer-events-none',
   'yes' = 'bg-slate-800 hover:bg-slate-500 pointer-events-auto',
 }
