@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { ItemsProps, Pages } from '../lib/props'
-
 import { api } from '../lib/axios'
+import { ItemsProps, Page } from '../lib/props'
+import { getUser } from '../lib/storage'
 
-import { PencilSimple, Trash } from '@phosphor-icons/react'
 import Header from '../components/Header'
+import LinesList from '../components/LinesList'
 import { ToAdd, ToOut } from '../components/Navigations'
 
 export default function Dash() {
-  const [token] = useState(sessionStorage.getItem('idUser'))
   const [total, setTotal] = useState(localStorage.getItem('total'))
   const [list, setList] = useState<ItemsProps[]>([])
 
@@ -21,19 +20,17 @@ export default function Dash() {
   }, [])
 
   useEffect(() => {
-    if (!token) {
-      return navigate(Pages.home)
-    }
+    if (!getUser()) return navigate(Page.home)
 
     localStorage.removeItem('item')
     localStorage.removeItem('total')
     getList()
-  }, [token])
+  }, [])
 
   async function getList() {
     const lista = await api.get('/items', {
       headers: {
-        idUser: token,
+        idUser: getUser(),
       },
     })
 
@@ -53,7 +50,7 @@ export default function Dash() {
   async function deleteItem(idItem: string) {
     await api.delete(`/items/${idItem}`, {
       headers: {
-        idUser: token,
+        idUser: getUser(),
       },
     })
 
@@ -79,63 +76,31 @@ export default function Dash() {
           </div>
         ) : (
           <div id="list" className="text-2xl">
-            <div className="w-max mr-2 pr-2 border-r border-black flex">
-              <Trash className="text-4xl text-gray-500 cursor-not-allowed" />
-              <PencilSimple className="text-4xl text-gray-500 cursor-not-allowed" />
-            </div>
-            <div className="mr-2 pr-2 border-r border-black font-bold">
-              Item
-            </div>
-            <div className="mr-2 pr-2 border-r border-black text-center font-bold">
-              Qtd
-            </div>
-            <div className="mr-2 pr-2 border-r border-black text-center font-bold">
-              $ Uni
-            </div>
-            <div className="text-center font-bold">$ Total</div>
+            <LinesList item={'Item'} qtd={'Qtd'} uni={'Uni'} total={'Total'} />
 
             {list.map((line) => {
               return (
                 <>
-                  <div className="w-max mr-2 pr-2 border-r border-black flex">
-                    <Trash
-                      className="text-4xl cursor-pointer hover:text-slate-800"
-                      onClick={() => {
-                        deleteItem(line.idItem)
-                      }}
-                    />
-                    <PencilSimple
-                      className="text-4xl cursor-pointer hover:text-slate-800"
-                      onClick={() => {
-                        localStorage.setItem(
-                          'item',
-                          `${line.idItem}|${line.idUser}|${line.item}|${line.qtd}|${line.price}`,
-                        )
-                        navigate('/edit')
-                      }}
-                    />
-                  </div>
-                  <div className="mr-2 pr-2 border-r border-black text-left">
-                    {line.item}
-                  </div>
-                  <div className="mr-2 pr-2 border-r border-black text-center">
-                    {line.qtd.toString().replace('.', ',')}
-                  </div>
-                  <div className="mr-2 pr-2 border-r border-black flex gap-2">
-                    <div>R$</div>
-                    <div className="w-full text-right">
-                      {line.price.toFixed(2).toString().replace('.', ',')}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div>R$</div>
-                    <div className="w-full text-right">
-                      {(line.price * line.qtd)
-                        .toFixed(2)
-                        .toString()
-                        .replace('.', ',')}
-                    </div>
-                  </div>
+                  <LinesList
+                    firstLine={false}
+                    item={line.item}
+                    qtd={line.qtd.toString().replace('.', ',')}
+                    uni={line.price.toFixed(2).toString().replace('.', ',')}
+                    total={(line.price * line.qtd)
+                      .toFixed(2)
+                      .toString()
+                      .replace('.', ',')}
+                    clickTrash={() => {
+                      deleteItem(line.idItem)
+                    }}
+                    clickPencil={() => {
+                      localStorage.setItem(
+                        'item',
+                        `${line.idItem}|${line.idUser}|${line.item}|${line.qtd}|${line.price}`,
+                      )
+                      navigate(Page.edit)
+                    }}
+                  />
                 </>
               )
             })}

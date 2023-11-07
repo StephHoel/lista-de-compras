@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 
-import { XCircle } from '@phosphor-icons/react'
 import MD5 from 'crypto-js/md5'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
-import { Buttons, Pages } from '../lib/props'
+import { Page } from '../lib/props'
+import { setUser } from '../lib/storage'
+import { ValidateButton, ValidateInput } from '../lib/validate'
 import DivError from './DivError'
+import TextButton from './TextButton'
 
 export default function FormLogin() {
   const [username, setUsername] = useState('')
@@ -18,13 +20,41 @@ export default function FormLogin() {
 
   const navigate = useNavigate()
 
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setIsLoading(true)
+
+    if (username.trim() !== '' && password.trim() !== '') {
+      try {
+        const user = await api.post('/user', {
+          username: username.toString().trim(),
+          password: MD5(password).toString(),
+        })
+
+        if (user.status === 201) {
+          setUser(user.data)
+          navigate(Page.dash)
+        } else
+          alert('Não foi possível fazer o login, tente novamente mais tarde')
+      } catch (err) {
+        console.log(err)
+      }
+      setIsLoading(false)
+    } else {
+      setIsValidUser(false)
+      setIsValidPass(false)
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <form className="grid w-[80%] mx-auto mt-12 text-left">
+    <form
+      className="grid w-[80%] mx-auto mt-12 text-left"
+      onSubmit={handleSubmit}
+    >
       <label>Usuário</label>
       <input
-        className={`${
-          !isValidUser ? 'border-red-600 border-2' : ''
-        } rounded outline-none text-black p-1`}
+        className={ValidateInput(isValidUser)}
         type="text"
         autoComplete="username"
         placeholder="Usuário"
@@ -44,9 +74,7 @@ export default function FormLogin() {
 
       <label>Senha</label>
       <input
-        className={`${
-          !isValidPass ? 'border-red-500 border-2' : ''
-        } rounded outline-none text-black p-1`}
+        className={ValidateInput(isValidPass)}
         type="password"
         autoComplete="current-password"
         placeholder="Senha"
@@ -63,45 +91,13 @@ export default function FormLogin() {
       {!isValidPass && <DivError>A senha é obrigatória</DivError>}
 
       <button
-        className={`${Buttons.all} ${
-          !isValidUser || !isValidPass || isLoading ? Buttons.not : Buttons.yes
-        }`}
-        onClick={async (e) => {
-          e.preventDefault()
-          setIsLoading(true)
-
-          if (username.trim() !== '' && password.trim() !== '') {
-            try {
-              const user = await api.post('/user', {
-                username: username.toString().trim(),
-                password: MD5(password).toString(),
-              })
-
-              // console.log('idUser', user.data)
-              if (user.status === 201) {
-                sessionStorage.setItem('idUser', user.data.idUser)
-                navigate(Pages.add)
-              } else
-                alert(
-                  'Não foi possível fazer o login, tente novamente mais tarde',
-                )
-            } catch (err) {
-              console.log(err)
-            }
-            setIsLoading(false)
-          } else {
-            setIsValidUser(false)
-            setIsValidPass(false)
-            setIsLoading(false)
-          }
-        }}
+        className={ValidateButton(!isValidUser || !isValidPass || isLoading)}
+        type="submit"
       >
-        {isLoading ? (
-          <>
-            <XCircle size={24} color="#fa0000" /> {'Carregando...'}
-          </>
-        ) : (
-          'Entrar / Registrar'
+        {TextButton(
+          !isValidUser || !isValidPass,
+          isLoading,
+          'Entrar / Registrar',
         )}
       </button>
     </form>

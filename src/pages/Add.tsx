@@ -1,16 +1,23 @@
-import { useEffect, useState } from 'react'
-import { api } from '../lib/axios'
-
-import { XCircle } from '@phosphor-icons/react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+import { api } from '../lib/axios'
+import { Page } from '../lib/props'
+import { getUser } from '../lib/storage'
+import {
+  ValidateButton,
+  ValidateInput,
+  ValidateNumber,
+  ValidateText,
+} from '../lib/validate'
+
 import DivError from '../components/DivError'
 import Header from '../components/Header'
 import { ToDash } from '../components/Navigations'
-import { Buttons, Pages } from '../lib/props'
-import { ValidateNumber, ValidateText } from '../lib/validate'
+import TextButton from '../components/TextButton'
 
 export default function Add() {
-  const [token] = useState(sessionStorage.getItem('idUser'))
+  const [token] = useState(getUser())
 
   const [isValidItem, setIsValidItem] = useState(true)
   const [isValidQtd, setIsValidQtd] = useState(true)
@@ -27,10 +34,48 @@ export default function Add() {
   useEffect(() => {
     document.title = 'Add | Lista de Compras'
 
-    if (!token) {
-      return navigate(Pages.home)
+    if (!getUser()) {
+      return navigate(Page.home)
     }
   }, [])
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setIsLoading(true)
+
+    const preco = Number.parseFloat(price.replace(',', '.').toString().trim())
+    const qtds = Number.parseFloat(qtd.replace(',', '.').toString().trim())
+
+    if (!item || !preco || !qtds) {
+      setIsValidItem(item !== '')
+      setIsValidPrice(price !== '')
+      setIsValidQtd(qtd !== '')
+      setIsLoading(false)
+    } else {
+      const response = await api.post(
+        '/items',
+        {
+          item: item.toString().trim(),
+          qtd: qtds,
+          price: preco,
+        },
+        {
+          headers: {
+            idUser: token,
+          },
+        },
+      )
+
+      if (response.status === 200) {
+        setItem('')
+        setQtd('')
+        setPrice('')
+
+        navigate(Page.dash)
+      } else
+        alert('Não foi possível adicionar o item, tente novamente mais tarde')
+    }
+  }
 
   return (
     <>
@@ -39,15 +84,16 @@ export default function Add() {
       </Header>
 
       <main className="">
-        <form className="grid mx-auto gap-4 items-center">
+        <form
+          className="grid mx-auto gap-4 items-center"
+          onSubmit={handleSubmit}
+        >
           <div className="grid">
             <label className="p-1">Item</label>
             <input
               type="text"
               placeholder="Item"
-              className={`${
-                isValidItem ? '' : 'border-red-500 border-2'
-              } rounded text-black p-1 outline-none`}
+              className={ValidateInput(isValidItem)}
               value={item}
               onChange={(e) => {
                 const value = e.currentTarget.value
@@ -67,9 +113,7 @@ export default function Add() {
             <input
               type="text"
               placeholder="1"
-              className={`${
-                isValidQtd ? '' : 'border-red-500 border-2'
-              } rounded text-black p-1 outline-none`}
+              className={ValidateInput(isValidQtd)}
               value={qtd}
               onChange={(e) => {
                 const value = e.currentTarget.value
@@ -87,9 +131,7 @@ export default function Add() {
             <input
               type="text"
               placeholder="2.99"
-              className={`${
-                isValidPrice ? '' : 'border-red-500 border-2'
-              } rounded text-black p-1 outline-none`}
+              className={ValidateInput(isValidPrice)}
               value={price}
               onChange={(e) => {
                 const value = e.currentTarget.value
@@ -103,61 +145,15 @@ export default function Add() {
           </div>
 
           <button
-            className={`${Buttons.all} ${
-              !isValidItem || !isValidPrice || !isValidQtd || isLoading
-                ? Buttons.not
-                : Buttons.yes
-            }`}
-            onClick={async (e) => {
-              e.preventDefault()
-              setIsLoading(true)
-
-              const preco = Number.parseFloat(
-                price.replace(',', '.').toString().trim(),
-              )
-              const qtds = Number.parseFloat(
-                qtd.replace(',', '.').toString().trim(),
-              )
-
-              if (!item || !preco || !qtds) {
-                setIsValidItem(item !== '')
-                setIsValidPrice(price !== '')
-                setIsValidQtd(qtd !== '')
-                setIsLoading(false)
-              } else {
-                const response = await api.post(
-                  '/items',
-                  {
-                    item: item.toString().trim(),
-                    qtd: qtds,
-                    price: preco,
-                  },
-                  {
-                    headers: {
-                      idUser: token,
-                    },
-                  },
-                )
-
-                if (response.status === 200) {
-                  setItem('')
-                  setQtd('')
-                  setPrice('')
-
-                  navigate(Pages.dash)
-                } else
-                  alert(
-                    'Não foi possível adicionar o item, tente novamente mais tarde',
-                  )
-              }
-            }}
+            className={ValidateButton(
+              !isValidItem || !isValidPrice || !isValidQtd || isLoading,
+            )}
+            type="submit"
           >
-            {isLoading ? (
-              <>
-                <XCircle size={24} color="#fa0000" /> {'Carregando...'}
-              </>
-            ) : (
-              'Adicionar Item'
+            {TextButton(
+              !isValidItem || !isValidPrice || !isValidQtd,
+              isLoading,
+              'Adicionar Item',
             )}
           </button>
         </form>

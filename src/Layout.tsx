@@ -5,7 +5,7 @@ export default function Layout() {
     <div className="p-4 lg:w-1/2 lg:m-auto" id="body">
       <Outlet />
 
-      <footer className="text-center items-center justify-center text-gray-400 text-xs mt-1">
+      <footer className="text-center items-center justify-center text-gray-400 text-xs mt-1 select-none">
         Feito por Steph Hoel @2023
       </footer>
     </div>

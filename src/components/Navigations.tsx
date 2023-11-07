@@ -1,6 +1,7 @@
 import { ArrowCircleLeft, PlusCircle, SignOut } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
-import { Pages } from '../lib/props'
+import { Page } from '../lib/props'
+import { removeUser } from '../lib/storage'
 
 export function ToAdd() {
   const navigate = useNavigate()
@@ -9,7 +10,7 @@ export function ToAdd() {
     <PlusCircle
       className="text-6xl cursor-pointer hover:text-slate-800"
       onClick={() => {
-        navigate(Pages.add)
+        navigate(Page.add)
       }}
     />
   )
@@ -22,8 +23,8 @@ export function ToOut() {
     <SignOut
       className="text-6xl cursor-pointer hover:text-slate-800"
       onClick={() => {
-        sessionStorage.removeItem('idUser')
-        navigate(Pages.home)
+        removeUser()
+        navigate(Page.home)
       }}
     />
   )
@@ -36,7 +37,7 @@ export function ToDash() {
     <ArrowCircleLeft
       className="text-6xl cursor-pointer hover:text-slate-800"
       onClick={() => {
-        navigate(Pages.dash)
+        navigate(Page.dash)
       }}
     />
   )
