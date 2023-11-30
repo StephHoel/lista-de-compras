@@ -24,7 +24,7 @@ export default function DivPreco({ onChange, onValid, value = '' }: DivProps) {
           setPrice(value)
           onChange(value)
 
-          const isValid = ValidateNumber(value, true)
+          const isValid = ValidateNumber(value)
           setIsValidPrice(isValid)
           onValid(isValid)
         }}

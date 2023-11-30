@@ -5,13 +5,10 @@ export function ValidateText(text: string) {
   return text !== ''
 }
 
-export function ValidateNumber(number: number | string, price = false) {
+export function ValidateNumber(number: number | string) {
   number = convertBRLtoUSD(number)
-  console.log('price', price)
-  console.log('number', number)
-  console.log('converted number', Number.parseFloat(number))
 
-  if (price && !Number.isNaN(Number.parseFloat(number))) return true
+  if (!Number.isNaN(Number.parseFloat(number))) return true
 
   if (!Number.parseFloat(number) || number === '') {
     return false
