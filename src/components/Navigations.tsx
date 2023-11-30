@@ -1,6 +1,6 @@
 import { ArrowCircleLeft, PlusCircle, SignOut } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
-import { Page } from '../lib/props'
+import { Page } from '../lib/enums'
 import { removeUser } from '../lib/storage'
 
 export function ToAdd() {

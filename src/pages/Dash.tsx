@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { api } from '../lib/axios'
-import { ItemsProps, Page } from '../lib/props'
+import { Page } from '../lib/enums'
 import { getUser } from '../lib/storage'
+import { convertUSDtoBRL } from '../lib/utils'
+import { ItemsProps } from '../lib/interfaces'
 
 import Header from '../components/Header'
 import LinesList from '../components/LinesList'
@@ -40,10 +42,7 @@ export default function Dash() {
     lista.data.map((item: ItemsProps) => {
       valorTotal += item.price * item.qtd
     })
-    localStorage.setItem(
-      'total',
-      valorTotal.toFixed(2).toString().replace('.', ','),
-    )
+    localStorage.setItem('total', convertUSDtoBRL(valorTotal.toFixed(2)))
     setTotal(valorTotal.toFixed(2).toString())
   }
 
@@ -67,7 +66,7 @@ export default function Dash() {
 
       <main className="text-center justify-center items-center">
         {total && (
-          <p className="-mt-4 mb-4">Total: R$ {total.replace('.', ',')}</p>
+          <p className="-mt-4 mb-4">Total: R$ {convertUSDtoBRL(total)}</p>
         )}
 
         {list.length === 0 && !total ? (
@@ -84,12 +83,9 @@ export default function Dash() {
                   <LinesList
                     firstLine={false}
                     item={line.item}
-                    qtd={line.qtd.toString().replace('.', ',')}
-                    uni={line.price.toFixed(2).toString().replace('.', ',')}
-                    total={(line.price * line.qtd)
-                      .toFixed(2)
-                      .toString()
-                      .replace('.', ',')}
+                    qtd={convertUSDtoBRL(line.qtd)}
+                    uni={convertUSDtoBRL(line.price.toFixed(2))}
+                    total={convertUSDtoBRL((line.price * line.qtd).toFixed(2))}
                     clickTrash={() => {
                       deleteItem(line.idItem)
                     }}

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FormLogin from '../components/FormLogin'
 import Header from '../components/Header'
-import { Page } from '../lib/props'
+import { Page } from '../lib/enums'
 import { getUser } from '../lib/storage'
 
 export default function Home() {

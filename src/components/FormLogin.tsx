@@ -3,11 +3,11 @@ import { FormEvent, useState } from 'react'
 import MD5 from 'crypto-js/md5'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/axios'
-import { Page } from '../lib/props'
+import { Page } from '../lib/enums'
 import { setUser } from '../lib/storage'
-import { ValidateButton, ValidateInput } from '../lib/validate'
-import DivError from './DivError'
-import TextButton from './TextButton'
+import Button from './Button'
+import DivPass from './Div/DivPass'
+import DivUser from './Div/DivUser'
 
 export default function FormLogin() {
   const [username, setUsername] = useState('')
@@ -52,54 +52,16 @@ export default function FormLogin() {
       className="grid w-[80%] mx-auto mt-12 text-left"
       onSubmit={handleSubmit}
     >
-      <label>Usuário</label>
-      <input
-        className={ValidateInput(isValidUser)}
-        type="text"
-        autoComplete="username"
-        placeholder="Usuário"
-        onChange={(e) => {
-          const value = e.currentTarget.value
+      <DivUser onChange={setUsername} onValid={setIsValidUser} />
 
-          setUsername(value)
+      <DivPass onChange={setPassword} onValid={setIsValidPass} />
 
-          if (value.length < 4) setIsValidUser(false)
-          else setIsValidUser(true)
-        }}
-        value={username}
+      <Button
+        validateClass={!isValidUser || !isValidPass || isLoading}
+        validateText={!isValidUser || !isValidPass}
+        validateLoading={isLoading}
+        text={'Entrar / Registrar'}
       />
-      {!isValidUser && (
-        <DivError>O usuário deve ter pelo menos 4 letras</DivError>
-      )}
-
-      <label>Senha</label>
-      <input
-        className={ValidateInput(isValidPass)}
-        type="password"
-        autoComplete="current-password"
-        placeholder="Senha"
-        onChange={(e) => {
-          const value = e.currentTarget.value
-
-          setPassword(value)
-
-          if (value.length === 0) setIsValidPass(false)
-          else setIsValidPass(true)
-        }}
-        value={password}
-      />
-      {!isValidPass && <DivError>A senha é obrigatória</DivError>}
-
-      <button
-        className={ValidateButton(!isValidUser || !isValidPass || isLoading)}
-        type="submit"
-      >
-        {TextButton(
-          !isValidUser || !isValidPass,
-          isLoading,
-          'Entrar / Registrar',
-        )}
-      </button>
     </form>
   )
 }

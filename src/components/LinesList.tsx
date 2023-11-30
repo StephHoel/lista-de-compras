@@ -1,5 +1,5 @@
 import { PencilSimple, Trash } from '@phosphor-icons/react'
-import { Style } from '../lib/props'
+import { Style } from '../lib/enums'
 
 interface LinesProps {
   firstLine?: boolean

@@ -1,19 +1,3 @@
-export interface ItemProps {
-  item: string
-  qtd: number
-  price: number
-}
-
-export interface ItemsProps {
-  idItem: string
-  idUser: string
-  item: string
-  qtd: number
-  price: number
-  createdAt: Date
-  updatedAt: Date
-}
-
 export enum Page {
   'home' = '/lista-de-compras',
   'dash' = '/lista-de-compras/dash',
@@ -27,11 +11,13 @@ export enum Style {
   'yes' = 'bg-slate-800 hover:bg-slate-500 pointer-events-auto ',
 
   'icons' = 'lg:text-4xl sm:text-6xl ',
-  'iconsInactive' = 'text-gray-500 pointer-events-none ',
+  'iconsInactive' = 'text-transparent pointer-events-none ',
   'iconsActive' = 'cursor-pointer hover:text-slate-800 pointer-events-auto  ',
   'div' = 'items-center flex ',
   'divBorder' = 'mr-2 pr-2 border-r border-black  ',
 
   'inputError' = 'border-red-600 border-2 ',
   'input' = 'rounded text-black p-1 outline-none ',
+
+  'divError' = 'text-red-500 select-none',
 }

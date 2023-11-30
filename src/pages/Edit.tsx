@@ -2,24 +2,18 @@ import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { api } from '../lib/axios'
-import { Page } from '../lib/props'
+import { Page } from '../lib/enums'
 import { getUser } from '../lib/storage'
-import {
-  ValidateButton,
-  ValidateInput,
-  ValidateNumber,
-  ValidateText,
-} from '../lib/validate'
 
-import DivError from '../components/DivError'
+import Button from '../components/Button'
+import DivItem from '../components/Div/DivItem'
+import DivPreco from '../components/Div/DivPreco'
+import DivQtd from '../components/Div/DivQtd'
 import Header from '../components/Header'
 import { ToDash } from '../components/Navigations'
-import TextButton from '../components/TextButton'
+import { convertBRLtoUSD } from '../lib/utils'
 
 export default function Edit() {
-  const itemStorage = localStorage.getItem('item')
-  const items = itemStorage?.split('|')
-
   const [idItem, setIdItem] = useState('')
   const [idUser, setIdUser] = useState('')
   const [item, setItem] = useState('')
@@ -35,7 +29,10 @@ export default function Edit() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (items) {
+    const itemStorage = localStorage.getItem('item')
+    const items = itemStorage?.split('|')
+
+    if (items?.length !== undefined) {
       setIdItem(items[0])
       setIdUser(items[1])
       setItem(items[2])
@@ -45,6 +42,8 @@ export default function Edit() {
       setIsValidItem(true)
       setIsValidQtd(true)
       setIsValidPrice(true)
+
+      localStorage.removeItem('item')
     }
 
     document.title = 'Edit | Lista de Compras'
@@ -58,8 +57,8 @@ export default function Edit() {
     e.preventDefault()
     setIsLoading(true)
 
-    const preco = Number.parseFloat(price.replace(',', '.').toString().trim())
-    const qtds = Number.parseFloat(qtd.replace(',', '.').toString().trim())
+    const preco = Number.parseFloat(convertBRLtoUSD(price))
+    const qtds = Number.parseFloat(convertBRLtoUSD(qtd))
 
     if (idUser !== getUser() && (!item || !preco || !qtds)) {
       console.log('erro')
@@ -101,79 +100,29 @@ export default function Edit() {
       </Header>
 
       <main>
-        {items && (
+        {idItem && (
           <form
             className="grid mx-auto gap-4 items-center"
             onSubmit={handleSubmit}
           >
-            <div className="grid">
-              <label className="p-1">Item</label>
-              <input
-                type="text"
-                placeholder="Item"
-                className={ValidateInput(isValidItem)}
-                value={item}
-                onChange={(e) => {
-                  const value = e.currentTarget.value
-                  setItem(value)
-                  setIsValidItem(ValidateText(value))
-                }}
-              />
-              {!isValidItem && (
-                <DivError>
-                  Um nome é necessário para o item ser adicionado.
-                </DivError>
-              )}
-            </div>
+            <DivItem onChange={setItem} onValid={setIsValidItem} value={item} />
 
-            <div className="grid">
-              <label className="p-1">Quantidade</label>
-              <input
-                type="text"
-                placeholder="1"
-                className={ValidateInput(isValidQtd)}
-                value={qtd}
-                onChange={(e) => {
-                  const value = e.currentTarget.value
-                  setQtd(value)
-                  setIsValidQtd(ValidateNumber(value))
-                }}
-              />
-              {!isValidQtd && (
-                <DivError>Apenas dígitos de 0 a 9 são permitidos.</DivError>
-              )}
-            </div>
+            <DivQtd onChange={setQtd} onValid={setIsValidQtd} value={qtd} />
 
-            <div className="grid">
-              <label className="p-1">Preço</label>
-              <input
-                type="text"
-                placeholder="2.99"
-                className={ValidateInput(isValidPrice)}
-                value={price}
-                onChange={(e) => {
-                  const value = e.currentTarget.value
-                  setPrice(value)
-                  setIsValidPrice(ValidateNumber(value))
-                }}
-              />
-              {!isValidPrice && (
-                <DivError>Apenas dígitos de 0 a 9 são permitidos.</DivError>
-              )}
-            </div>
+            <DivPreco
+              onChange={setPrice}
+              onValid={setIsValidPrice}
+              value={price}
+            />
 
-            <button
-              className={ValidateButton(
-                !isValidItem || !isValidPrice || !isValidQtd || isLoading,
-              )}
-              type="submit"
-            >
-              {TextButton(
-                !isValidItem || !isValidPrice || !isValidQtd,
-                isLoading,
-                'Editar Item',
-              )}
-            </button>
+            <Button
+              validateClass={
+                !isValidItem || !isValidPrice || !isValidQtd || isLoading
+              }
+              validateText={!isValidItem || !isValidPrice || !isValidQtd}
+              validateLoading={isLoading}
+              text={'Editar Item'}
+            />
           </form>
         )}
       </main>
