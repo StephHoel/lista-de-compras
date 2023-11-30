@@ -43,7 +43,7 @@ export default function Add() {
     const preco = Number.parseFloat(convertBRLtoUSD(price))
     const qtds = Number.parseFloat(convertBRLtoUSD(qtd))
 
-    if (!item || !preco || !qtds) {
+    if (item === '' || Number.isNaN(preco) || Number.isNaN(qtds)) {
       setIsValidItem(item !== '')
       setIsValidPrice(price !== '')
       setIsValidQtd(qtd !== '')
