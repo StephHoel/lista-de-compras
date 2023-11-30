@@ -1,7 +1,7 @@
 import { ArrowCircleLeft, PlusCircle, SignOut } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
 import { Page } from '../lib/enums'
-import { removeUser } from '../lib/storage'
+import { removeUser, storageRemove } from '../lib/storage'
 
 export function ToAdd() {
   const navigate = useNavigate()
@@ -24,6 +24,7 @@ export function ToOut() {
       className="text-6xl cursor-pointer hover:text-slate-800"
       onClick={() => {
         removeUser()
+        storageRemove('total')
         navigate(Page.home)
       }}
     />

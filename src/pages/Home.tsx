@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import FormLogin from '../components/FormLogin'
 import Header from '../components/Header'
 import { Page } from '../lib/enums'
-import { getUser } from '../lib/storage'
+import { getUser, storageGet, storageRemove } from '../lib/storage'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -11,8 +11,13 @@ export default function Home() {
   useEffect(() => {
     document.title = 'Home | Lista de Compras'
 
-    if (getUser()) {
-      navigate(Page.dash)
+    const redirect = storageGet('redirect')
+    storageRemove('redirect')
+
+    if (redirect !== undefined && redirect !== null) {
+      if (getUser()) {
+        navigate(Page.dash)
+      } else navigate(redirect)
     }
   }, [])
 

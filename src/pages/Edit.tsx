@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { api } from '../lib/axios'
 import { Page } from '../lib/enums'
-import { getUser } from '../lib/storage'
+import { getUser, storageGet, storageRemove } from '../lib/storage'
 
 import Button from '../components/Button'
 import DivItem from '../components/Div/DivItem'
@@ -29,7 +29,7 @@ export default function Edit() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const itemStorage = localStorage.getItem('item')
+    const itemStorage = storageGet('item')
     const items = itemStorage?.split('|')
 
     if (items?.length !== undefined) {
@@ -43,7 +43,7 @@ export default function Edit() {
       setIsValidQtd(true)
       setIsValidPrice(true)
 
-      localStorage.removeItem('item')
+      storageRemove('item')
     }
 
     document.title = 'Edit | Lista de Compras'

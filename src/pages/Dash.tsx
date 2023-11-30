@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom'
 
 import { api } from '../lib/axios'
 import { Page } from '../lib/enums'
-import { getUser } from '../lib/storage'
-import { convertUSDtoBRL } from '../lib/utils'
 import { ItemsProps } from '../lib/interfaces'
+import { getUser, storageGet, storageRemove, storageSet } from '../lib/storage'
+import { convertUSDtoBRL } from '../lib/utils'
 
 import Header from '../components/Header'
 import LinesList from '../components/LinesList'
 import { ToAdd, ToOut } from '../components/Navigations'
 
 export default function Dash() {
-  const [total, setTotal] = useState(localStorage.getItem('total'))
+  const [total, setTotal] = useState(storageGet('total'))
   const [list, setList] = useState<ItemsProps[]>([])
 
   const navigate = useNavigate()
@@ -24,8 +24,8 @@ export default function Dash() {
   useEffect(() => {
     if (!getUser()) return navigate(Page.home)
 
-    localStorage.removeItem('item')
-    localStorage.removeItem('total')
+    storageRemove('item')
+    storageRemove('total')
     getList()
   }, [])
 
@@ -42,7 +42,7 @@ export default function Dash() {
     lista.data.map((item: ItemsProps) => {
       valorTotal += item.price * item.qtd
     })
-    localStorage.setItem('total', convertUSDtoBRL(valorTotal.toFixed(2)))
+    storageSet('total', convertUSDtoBRL(valorTotal.toFixed(2)))
     setTotal(valorTotal.toFixed(2).toString())
   }
 
@@ -90,7 +90,7 @@ export default function Dash() {
                       deleteItem(line.idItem)
                     }}
                     clickPencil={() => {
-                      localStorage.setItem(
+                      storageSet(
                         'item',
                         `${line.idItem}|${line.idUser}|${line.item}|${line.qtd}|${line.price}`,
                       )
