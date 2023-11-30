@@ -14,33 +14,14 @@
     content="Não perca a noção quando tiver às compras, mantenha sua lista de compras atualizada" />
 
   <title>Lista de Compras</title>
+  <script>
+    // Redirecionar todas as solicitações para o index.html
+    const redirectUrl = window.location.origin + '/lista-de-compras';
+    window.localStorage.setItem('redirect', window.location.pathname)
+    window.location.replace(redirectUrl);
+  </script>
 </head>
-
 <body>
-  <header>
-    <p>
-      <a href="https://stephhoel.github.io/lista-de-compras">
-        Lista de Compras
-      </a>
-    </p>
-
-    <nav>
-    </nav>
-  </header>
-
-  <main>
-    <h1>404 - Nothing to See Here!</h1>
-
-    <h3>
-      <a href="https://stephhoel.github.io/lista-de-compras">
-        Go back to Home
-      </a>
-    </h3>
-  </main>
-
-  <footer>
-    Feito por Steph Hoel @2023
-  </footer>
+  <p>Redirecting to <a href="/">Home</a>...</p>
 </body>
-
 </html>
