@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
+
+import { api } from './lib/axios'
 
 import Layout from './Layout'
 import Add from './pages/Add'
@@ -8,6 +11,14 @@ import Home from './pages/Home'
 import NoMath from './pages/NoMath'
 
 export default function App() {
+  useEffect(() => {
+    async function awake() {
+      console.log((await api.get('/')).data)
+    }
+
+    awake()
+  }, [])
+
   return (
     <Routes>
       <Route path="/lista-de-compras" element={<Layout />}>
